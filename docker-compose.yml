@@ -1,0 +1,231 @@
+version: '3.9'
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    ports:
+      - 8000:8000
+      - 9443:9443
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - JELLYFIN_PublishedServerUrl=34.175.58.91
+    volumes:
+      - jellyfin_config:/config
+      - ./data/jellyfin/data:/data
+    ports:
+      - 8096:8096
+      - 8920:8920
+      - 7359:7359/udp
+      - 1900:1900/udp
+    restart: unless-stopped
+
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud:latest
+    container_name: nextcloud
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ./data/nextcloud/config:/config:rw
+      - ./data/nextcloud/data:/data
+    ports:
+      - 8095:443
+    restart: unless-stopped
+
+  collabora:
+    image: collabora/code
+    container_name: collabora
+    ports:
+      - "9980:9980"
+    restart: unless-stopped
+    environment:
+      - extra_params=--o:ssl.enable=false
+      - domain=localhost  # 192.168.2.111 | example.com            
+      - username=User
+      - password=p4ssw0rd
+      - dictionaries=es_ES 
+      - TZ=Europe/Madrid 
+
+  postgresql:
+    image: docker.io/library/postgres:12-alpine
+    container_name: authentik_postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    volumes:
+      - ./data/authentik/db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ajhsfgbasjhbdjhasbda
+      POSTGRES_USER: authentik
+      POSTGRES_DB: authentik
+  redis:
+    image: docker.io/library/redis:alpine
+    container_name: authentik_redis
+    command: --save 60 1 --loglevel warning
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    volumes:
+      - redis:/data
+  server:
+    image: ghcr.io/goauthentik/server:2023.10.2
+    container_name: authentik_server
+    restart: unless-stopped
+    command: server
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ajhsfgbasjhbdjhasbda
+      AUTHENTIK_SECRET_KEY: ajshdbalsjndkj;asnd;kjasn
+    volumes:
+      - ./media:/media
+      - ./custom-templates:/templates
+    ports:
+      - "9000:9000"
+      - "9444:9443"
+    depends_on:
+      - postgresql
+      - redis
+  worker:
+    image: ghcr.io/goauthentik/server:2023.10.2
+    container_name: authentik_worker
+    restart: unless-stopped
+    command: worker
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ajhsfgbasjhbdjhasbda
+      AUTHENTIK_SECRET_KEY: ajshdbalsjndkj;asnd;kjasn
+    # `user: root` and the docker socket volume are optional.
+    # See more for the docker socket integration here:
+    # https://goauthentik.io/docs/outposts/integrations/docker
+    # Removing `user: root` also prevents the worker from fixing the permissions
+    # on the mounted folders, so when removing this make sure the folders have the correct UID/GID
+    # (1000:1000 by default)
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/authentik/media:/media
+      - ./data/authentik/certs:/certs
+      - ./data/authentik/custom-templates:/templates
+    depends_on:
+      - postgresql
+      - redis
+
+  dashy:
+    container_name: Dashy
+    image: lissy93/dashy
+    ports:
+      - 4000:80
+    # Set any environmental variables
+    environment:
+      - NODE_ENV=production
+    # Specify your user ID and group ID. You can find this by running `id -u` and `id -g`
+    #  - UID=1000
+    #  - GID=1000
+    restart: unless-stopped
+
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    environment:
+      PUID: 1001
+      PGID: 1001
+    ports:
+      - 3000:3000
+    volumes:
+      - ./data/homepage:/app/config # Make sure your local config directory exists
+      - /var/run/docker.sock:/var/run/docker.sock:ro # optional, for docker integrations
+    restart: unless-stopped
+
+  maptiler:
+    container_name: maptilerserver
+    image: maptiler/server:latest
+    command: --adminPassword=${ADMIN_PASS:-"admin123"}
+    restart: "always"
+    volumes:
+      - ./data/maptiler:/data/
+      - ./log/server/:/data/logs/
+    ports:
+      - 3650:3650
+    environment:
+      MAPTILER_SERVER_LICENSE: ${MAPTILER_SERVER_LICENSE:-""}
+
+  # nginx:
+  #   container_name: nginx
+  #   image: nginx:1.25-alpine
+  #   restart: "always"
+  #   depends_on:
+  #     - server
+  #     - gen_certs
+  #   ports:
+  #     - "7980:80"
+  #     - "6443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/conf.d/server.conf:ro
+  #     - ./certs:/etc/nginx/certs/:ro
+  #     - ./log/nginx/:/var/log/nginx/
+
+  gen_certs:
+    container_name: gen_certs
+    image: maptiler/server:latest
+    entrypoint: bash
+    command: /tmp/generate-certificates.sh
+    working_dir: /tmp/certs/
+    volumes:
+      - ./generate-certificates.sh:/tmp/generate-certificates.sh:ro
+      - ./certs:/tmp/certs/
+    restart: "no"
+
+  searxng_redis:
+    container_name: redis
+    image: "redis:alpine"
+    command: redis-server --save "" --appendonly "no"
+    tmpfs:
+      - /var/lib/redis
+
+  searxng:
+    container_name: searxng
+    image: searxng/searxng:latest
+    ports:
+     - "8081:8080"
+    volumes:
+      - ./data/searxng:/etc/searxng:rw
+    environment:
+      - SEARXNG_BASE_URL=https://${SEARXNG_HOSTNAME:-localhost}/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+volumes:
+  portainer_data:
+    driver: local
+  jellyfin_config:
+  redis:
+  homer:
