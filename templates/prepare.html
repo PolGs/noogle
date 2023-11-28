@@ -1,0 +1,204 @@
+<div class="app">
+	<header class="header">
+		<h1 class="header__title">Noogle Web Installer</h1>
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='index.css', _external=True) }}">
+	</header>
+	
+	<main class="main">
+		<form class="form" action="/generate" method="post">
+			<section class="section">
+				<div class="section__title">
+					<div class="container">
+						<h2 class="title">General:</h2>
+					</div>
+				</div>
+				<div class="container">
+					<ul class="setup">
+						<li class="setup__item">
+							<label for="dbName" class="setup__label">TimeZone</label>
+							<input type="text" class="setup__input" id="dbName" value="Etc/UTC" placeholder="Add your database name" required>
+						</li>
+						<li class="setup__item setup__item--cols">
+							<div class="setup__col">
+								<label for="adMail" class="setup__label">Admin user email</label>
+								<input type="text" class="setup__input" id="adMail" placeholder="Add your admin user email" required>
+								<span class="validation validation--error"></span>
+							</div>
+							<div class="setup__col">
+								<label for="adPass" class="setup__label">Admin password</label>
+								<input type="text" class="setup__input" id="adPass" placeholder="Add your admin password" required>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</section>
+			<input type="text" id="portainer" name="portainer" value="1" style="display: none;">
+			<section class="section">
+				<div class="section__title">
+					<div class="container">
+						<h2 class="title">Portainer:</h2>
+					</div>
+				</div>
+				<div class="container">
+					<ul class="setup">
+						<li class="setup__item setup__item--cols">
+							<div class="setup__col">
+								<label for="portPortainer" class="setup__label">Port Number</label>
+								<input type="text" class="setup__input" id="portPortainer" name="portPortainer" value="9443" placeholder="Add your port number here" required>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</section>
+			<input type="text" id="Authentik" name="Authentik" value="1" style="display: none;">
+			<section class="section">
+				<div class="section__title">
+					<div class="container">
+						<h2 class="title">Authentik:</h2>
+					</div>
+				</div>
+				<div class="container">
+					<ul class="setup">
+						<li class="setup__item setup__item--cols">
+							<div class="setup__col">
+								<label for="portAuthentik" class="setup__label">Port Number</label>
+								<input type="text" class="setup__input" id="portAuthentik" name="portAuthentik" value="9444" placeholder="Add your port number here" required>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</section>
+			{% if form_data['jellyfin'] %}
+			<input type="text" id="jellyfin" name="jellyfin" value="1" style="display: none;">
+			<section class="section">
+				<div class="section__title">
+					<div class="container">
+						<h2 class="title">Jellyfin:</h2>
+					</div>
+				</div>
+				<div class="container">
+					<ul class="setup">
+						<li class="setup__item setup__item--cols">
+							<div class="setup__col">
+								<label for="portJellyfin" class="setup__label">Port Number</label>
+								<input type="text" class="setup__input" id="portJellyfin" name="portJellyfin" value="8096" placeholder="Add your port number here" required>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</section>
+			{% endif %}
+			{% if form_data['maptiler'] %}
+			<input type="text" id="maptiler" name="maptiler" value="1" style="display: none;">
+			<section class="section">
+				<div class="section__title">
+					<div class="container">
+						<h2 class="title">Maptiler:</h2>
+					</div>
+				</div>
+				<div class="container">
+					<ul class="setup">
+						<li class="setup__item setup__item--cols">
+							<div class="setup__col">
+								<label for="portMaptiler" class="setup__label">Port Number</label>
+								<input type="text" class="setup__input" id="portMaptiler" name="portMaptiler" value="3650" placeholder="Add your port number here" required>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</section>
+			{% endif %}
+			{% if form_data['searxng'] %}
+			<input type="text" id="searxng" name="searxng" value="1" style="display: none;">
+			<section class="section">
+				<div class="section__title">
+					<div class="container">
+						<h2 class="title">Searxng:</h2>
+					</div>
+				</div>
+				<div class="container">
+					<ul class="setup">
+						<li class="setup__item setup__item--cols">
+							<div class="setup__col">
+								<label for="portSearxng" class="setup__label">Port Number</label>
+								<input type="text" class="setup__input" id="portSearxng" name="portSearxng" value="8081" placeholder="Add your port number here" required>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</section>
+			{% endif %}
+			{% if form_data['dashy'] %}
+			<input type="text" id="dashy" name="dashy" value="1" style="display: none;">
+			<section class="section">
+				<div class="section__title">
+					<div class="container">
+						<h2 class="title">Dashy:</h2>
+					</div>
+				</div>
+				<div class="container">
+					<ul class="setup">
+						<li class="setup__item setup__item--cols">
+							<div class="setup__col">
+								<label for="portDashy" class="setup__label">Port Number</label>
+								<input type="text" class="setup__input" id="portDashy" name="portDashy" value="4000" placeholder="Add your port number here" required>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</section>
+			{% endif %}
+			{% if form_data['nextcloud'] %}
+			<input type="text" id="nextcloud" name="nextcloud" value="1" style="display: none;">
+			<section class="section">
+				<div class="section__title">
+					<div class="container">
+						<h2 class="title">Nextcloud:</h2>
+					</div>
+				</div>
+				<div class="container">
+					<ul class="setup">
+						<li class="setup__item setup__item--cols">
+							<div class="setup__col">
+								<label for="portNextcloud" class="setup__label">Port Number</label>
+								<input type="text" class="setup__input" id="portNextcloud" name="portNextcloud" value="8095" placeholder="Add your port number here" required>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</section>
+			{% endif %}
+			{% if form_data['collabora'] %}
+			<input type="text" id="collabora" name="collabora" value="1" style="display: none;">
+			<section class="section">
+				<div class="section__title">
+					<div class="container">
+						<h2 class="title">Nextcloud Collabora:</h2>
+					</div>
+				</div>
+				<div class="container">
+					<ul class="setup">
+						<li class="setup__item setup__item--cols">
+							<div class="setup__col">
+								<label for="portCollabora" class="setup__label">Port Number</label>
+								<input type="text" class="setup__input" id="portCollabora" name="portCollabora" value="9980" placeholder="Add your port number here" required>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</section>
+			{% endif %}
+			
+			<div class="section">
+				<div class="container">
+					<div class="setup">
+						<div class="setup__item setup__item--cols setup__item--end">
+							<button type="submit" class="button">Install</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</main>
+	
+</div>
