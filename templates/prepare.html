@@ -14,19 +14,14 @@
 				</div>
 				<div class="container">
 					<ul class="setup">
-						<li class="setup__item">
-							<label for="dbName" class="setup__label">TimeZone</label>
-							<input type="text" class="setup__input" id="dbName" value="Etc/UTC" placeholder="Add your database name" required>
-						</li>
 						<li class="setup__item setup__item--cols">
 							<div class="setup__col">
-								<label for="adMail" class="setup__label">Admin user email</label>
-								<input type="text" class="setup__input" id="adMail" placeholder="Add your admin user email" required>
-								<span class="validation validation--error"></span>
+								<label for="adPass" class="setup__label">Domain</label>
+								<input type="text" class="setup__input" id="domain" name="domain" value="noogle.site" placeholder="Add your domain here" required>
 							</div>
 							<div class="setup__col">
-								<label for="adPass" class="setup__label">Admin password</label>
-								<input type="text" class="setup__input" id="adPass" placeholder="Add your admin password" required>
+								<label for="adMail" class="setup__label">TimeZone</label>
+								<input type="text" class="setup__input" id="timezone" name="timezone" value="Europe/Madrid " placeholder="Add your time zone here" required>
 							</div>
 						</li>
 					</ul>
@@ -193,7 +188,7 @@
 				<div class="container">
 					<div class="setup">
 						<div class="setup__item setup__item--cols setup__item--end">
-							<button type="submit" class="button">Install</button>
+							<button type="submit" class="button">Generate</button>
 						</div>
 					</div>
 				</div>

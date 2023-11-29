@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import yaml
+import jinja2
 
 app = Flask(__name__)
 
@@ -19,25 +20,23 @@ def prepare_services():
 @app.route('/generate', methods=['POST'])
 def generate_compose():
     form_data = request.form
-    generate_selected_docker_compose('docker-compose.yml', form_data)
+    print(form_data)
+    jinja_env = jinja2.Environment()
+    with open('templates/docker-compose.yml.jinja', 'r') as file:
+        template = file.read()
+        compose = jinja_env.from_string(template).render(
+            form_data=form_data
+        )
+        print (compose)
+
+    with open('templates/Caddyfile.jinja', 'r') as file:
+        template = file.read()
+        caddyfile = jinja_env.from_string(template).render(
+            form_data=form_data
+        )
+        print (caddyfile)
+
     return "ok", 200
-
-def generate_selected_docker_compose(base_compose_file, service_dict):
-    with open(base_compose_file, 'r') as f:
-        base_compose_data = yaml.safe_load(f)
-
-    selected_services = set(service for service, enabled in service_dict.items() if enabled == '1')
-    filtered_services = {service: config for service, config in base_compose_data.get('services', {}).items() if service in selected_services}
-
-    # Update the base Compose data with filtered services
-    base_compose_data['services'] = filtered_services
-
-    # Generate a new Docker Compose file with selected services
-    new_compose_file = f"docker-compose-selected.yml"
-    with open(new_compose_file, 'w') as f:
-        yaml.dump(base_compose_data, f, default_flow_style=False)
-
-    return new_compose_file
 
 @app.route('/help')
 def help():

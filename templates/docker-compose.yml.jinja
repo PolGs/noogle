@@ -1,0 +1,181 @@
+version: '3.9'
+
+volumes:
+  redis:
+  portainer:
+
+services:
+  caddy:
+    image: caddy:alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer:/data
+    ports:
+      - 8000:9000
+      - 9443:9443
+
+  authentik_postgres:
+    image: docker.io/library/postgres:12-alpine
+    container_name: authentik_postgres
+    restart: unless-stopped
+    volumes:
+      - ./data/authentik/db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ajhsfgbasjhbdjhasbda
+      POSTGRES_USER: authentik
+      POSTGRES_DB: authentik
+  authentik_redis:
+    image: docker.io/library/redis:alpine
+    container_name: authentik_redis
+    command: --save 60 1 --loglevel warning
+    restart: unless-stopped
+    volumes:
+      - redis:/data
+  authentik_server:
+    image: ghcr.io/goauthentik/server:2023.10.2
+    container_name: authentik_server
+    restart: unless-stopped
+    command: server
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: authentik_postgres
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ajhsfgbasjhbdjhasbda
+      AUTHENTIK_SECRET_KEY: ajshdbalsjndkj;asnd;kjasn
+    volumes:
+      - ./data/authentik/media:/media
+      - ./data/authentik/custom-templates:/templates
+    ports:
+      - "9000:9000"
+      - "9444:9443"
+    depends_on:
+      - authentik_postgres
+      - authentik_redis
+  authentik_worker:
+    image: ghcr.io/goauthentik/server:2023.10.2
+    container_name: authentik_worker
+    restart: unless-stopped
+    command: worker
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: authentik_postgres
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ajhsfgbasjhbdjhasbda
+      AUTHENTIK_SECRET_KEY: ajshdbalsjndkj;asnd;kjasn
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/authentik/media:/media
+      - ./data/authentik/certs:/certs
+      - ./data/authentik/custom-templates:/templates
+    depends_on:
+      - authentik_postgres
+      - authentik_redis
+{% if form_data['jellyfin'] %}
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ./data/jellyfin/config:/config
+      - ./data/jellyfin/data:/data
+    ports:
+      - {{ form_data['portJellyfin'] }}:8096
+    restart: unless-stopped
+{% endif %}
+{% if form_data['nextcloud'] %}
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud:latest
+    container_name: nextcloud
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ./data/nextcloud/config:/config:rw
+      - ./data/nextcloud/data:/data
+    ports:
+      - {{ form_data['portNextcloud'] }}:443
+    restart: unless-stopped
+{% endif %}
+{% if form_data['collabora'] %}
+  collabora:
+    image: collabora/code
+    container_name: collabora
+    ports:
+      - "9980:9980"
+    restart: unless-stopped
+    environment:
+      - extra_params=--o:ssl.enable=false
+      - domain=localhost  # 192.168.2.111 | example.com            
+      - username=User
+      - password=p4ssw0rd
+      - dictionaries=es_ES 
+      - TZ=Europe/Madrid 
+{% endif %}
+{% if form_data['dashy'] %}
+  dashy:
+    container_name: dashy
+    image: lissy93/dashy
+    ports:
+      - {{ form_data['portDashy'] }}:80
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    volumes:
+      - ./data/dashy:/app/public
+{% endif %}
+{% if form_data['maptiler'] %}
+  maptiler:
+    container_name: maptilerserver
+    image: maptiler/server:latest
+    command: --adminPassword=${ADMIN_PASS:-"admin123"}
+    restart: "always"
+    volumes:
+      - ./data/maptiler/data:/data/
+      - ./data/maptiler/log:/data/logs/
+    ports:
+      - {{ form_data['portMaptiler'] }}:3650
+    environment:
+      MAPTILER_SERVER_LICENSE: ${MAPTILER_SERVER_LICENSE:-""}
+{% endif %}
+{% if form_data['searxng'] %}
+  searxng_redis:
+    container_name: redis
+    image: "redis:alpine"
+    command: redis-server --save "" --appendonly "no"
+    tmpfs:
+      - /var/lib/redis
+  searxng:
+    container_name: searxng
+    image: searxng/searxng:latest
+    ports:
+     - "{{ form_data['portSearxng'] }}:8080"
+    volumes:
+      - ./data/searxng:/etc/searxng:rw
+    environment:
+      - SEARXNG_BASE_URL=https://searxng.{{ form_data['domain'] }}/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+{% endif %}
