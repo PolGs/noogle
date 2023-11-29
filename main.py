@@ -45,5 +45,5 @@ def help():
 if __name__ == '__main__':
     # Run the application on port 8067
     print("Starting installation Script")
-    app.run(port=8000, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)
 
