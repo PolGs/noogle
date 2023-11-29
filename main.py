@@ -47,7 +47,7 @@ def generate_compose():
     file2_tarinfo.size = len(caddyfile)
     file3_tarinfo = tarfile.TarInfo('dashyconf.yml')
     file3_tarinfo.size = len(dashyconf)
-    with tarfile.open('archive.tar.gz', 'w:gz') as tar:
+    with tarfile.open('noogle_generated.tar.gz', 'w:gz') as tar:
         tar.addfile(file1_tarinfo, io.BytesIO(compose.encode()))
         tar.addfile(file2_tarinfo, io.BytesIO(caddyfile.encode()))
         tar.addfile(file3_tarinfo, io.BytesIO(dashyconf.encode()))
