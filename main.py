@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, jsonify
-import yaml
+from flask import Flask, render_template, request
 import jinja2
+import io
+import tarfile
 
 app = Flask(__name__)
 
@@ -20,22 +21,36 @@ def prepare_services():
 @app.route('/generate', methods=['POST'])
 def generate_compose():
     form_data = request.form
-    print(form_data)
+    # print(form_fata)
     jinja_env = jinja2.Environment()
     with open('templates/docker-compose.yml.jinja', 'r') as file:
         template = file.read()
         compose = jinja_env.from_string(template).render(
             form_data=form_data
         )
-        print (compose)
-
+        # print (compose)
     with open('templates/Caddyfile.jinja', 'r') as file:
         template = file.read()
         caddyfile = jinja_env.from_string(template).render(
             form_data=form_data
         )
-        print (caddyfile)
-
+        # print (caddyfile)
+    with open('templates/dashyconf.yml.jinja', 'r') as file:
+        template = file.read()
+        dashyconf = jinja_env.from_string(template).render(
+            form_data=form_data
+        )
+        # print (dashyconf)
+    file1_tarinfo = tarfile.TarInfo('docker-compose.yml')
+    file1_tarinfo.size = len(compose)
+    file2_tarinfo = tarfile.TarInfo('Caddyfile')
+    file2_tarinfo.size = len(caddyfile)
+    file3_tarinfo = tarfile.TarInfo('dashyconf.yml')
+    file3_tarinfo.size = len(dashyconf)
+    with tarfile.open('archive.tar.gz', 'w:gz') as tar:
+        tar.addfile(file1_tarinfo, io.BytesIO(compose.encode()))
+        tar.addfile(file2_tarinfo, io.BytesIO(caddyfile.encode()))
+        tar.addfile(file3_tarinfo, io.BytesIO(dashyconf.encode()))
     return "ok", 200
 
 @app.route('/help')
@@ -45,5 +60,5 @@ def help():
 if __name__ == '__main__':
     # Run the application on port 8067
     print("Starting installation Script")
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(port=8000, debug=True)
 

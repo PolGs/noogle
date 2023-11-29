@@ -1,0 +1,101 @@
+pageInfo:
+  title: Noogle
+  description: Dashy
+  navLinks:
+    - title: Documentation
+      path: https://dashy.to/docs
+      target: newtab
+appConfig:
+  theme: material
+  layout: vertical
+  iconSize: small
+  language: es
+sections:
+  - name: Media
+    displayData:
+      sortBy: default
+      rows: 1
+      cols: 1
+      collapsed: false
+      hideForGuests: false
+    items:
+      - &ref_0
+        title: Jellyfin
+        icon: >-
+          https://f-droid.org/repo/org.jellyfin.mobile/en-US/icon_Y46m-eV538ASL9vG0piH5BI4dC1PHilt0tKyKCVp_F0=.png
+        url: https://jellyfin.{{form_data['domain']}}
+        id: 0_480_jellyfin
+    filteredItems:
+      - *ref_0
+  - name: Nextcloud
+    displayData:
+      sortBy: default
+      rows: 1
+      cols: 1
+      collapsed: false
+      hideForGuests: false
+    items:
+      - &ref_1
+        title: Nextcloud
+        icon: >-
+          https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Nextcloud_Logo.svg/640px-Nextcloud_Logo.svg.png
+        url: https://nextcloud.{{form_data['domain']}}
+        id: 0_950_nextcloud
+      - &ref_2
+        title: Nextcloud Talk
+        icon: >-
+          https://play-lh.googleusercontent.com/9OKq6U2il1saAj6jGTRsBT4fyT1V3_Qw2-Rumu8z6gPluD3Ct37qigChJsZqdIO9QbY
+        id: 1_950_nextcloudtalk
+    filteredItems:
+      - *ref_1
+      - *ref_2
+  - name: Managment
+    displayData:
+      sortBy: default
+      rows: 1
+      cols: 1
+      collapsed: false
+      hideForGuests: false
+    items:
+      - &ref_3
+        title: Authentik
+        icon: >-
+          https://cf.appdrag.com/dashboard-openvm-clo-b2d42c/uploads/goauthentik-LRFF.png
+        url: https://authentik.{{form_data['domain']}}
+        id: 0_920_authentik
+      - &ref_4
+        title: Uptime Kuma
+        icon: https://uptime.kuma.pet/img/icon.svg
+        url: https://uptime.{{form_data['domain']}}
+        id: 1_920_uptimekuma
+      - &ref_5
+        title: Portainer
+        icon: >-
+          https://res.cloudinary.com/canonical/image/fetch/f_auto,q_auto,fl_sanitize,c_fill,w_100,h_100/https://api.charmhub.io/api/v1/media/download/charm_cMu7M9K6a65FsKZvrLZOZwyQradwbs7E_icon_5cef79c2d18f67464f39c8f2cf2d7ebb815b0071f04d3ffbb94f49fddd3ab666.png
+        url: https://portainer.{{form_data['domain']}}
+        id: 2_920_portainer
+    filteredItems:
+      - *ref_3
+      - *ref_4
+      - *ref_5
+  - name: Utility
+    displayData:
+      sortBy: default
+      rows: 1
+      cols: 1
+      collapsed: false
+      hideForGuests: false
+    items:
+      - &ref_6
+        title: MapTiler
+        icon: https://avatars.githubusercontent.com/u/19489331?s=200&v=4
+        url: https://maptiler.{{form_data['domain']}}/admin/login
+        id: 0_756_maptiler
+      - &ref_7
+        title: SearXNG
+        icon: https://avatars.githubusercontent.com/u/80454229?s=280&v=4
+        url: http://searxng.{{form_data['domain']}}
+        id: 1_756_searxng
+    filteredItems:
+      - *ref_6
+      - *ref_7
