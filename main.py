@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 import jinja2
 import io
 import tarfile
@@ -21,7 +21,6 @@ def prepare_services():
 @app.route('/generate', methods=['POST'])
 def generate_compose():
     form_data = request.form
-    # print(form_fata)
     jinja_env = jinja2.Environment()
     with open('templates/docker-compose.yml.jinja', 'r') as file:
         template = file.read()
@@ -41,17 +40,27 @@ def generate_compose():
             form_data=form_data
         )
         # print (dashyconf)
+    with open('static/script.sh', 'r') as file:
+        script = file.read()
+        # print (script)
     file1_tarinfo = tarfile.TarInfo('docker-compose.yml')
     file1_tarinfo.size = len(compose)
     file2_tarinfo = tarfile.TarInfo('Caddyfile')
     file2_tarinfo.size = len(caddyfile)
     file3_tarinfo = tarfile.TarInfo('dashyconf.yml')
     file3_tarinfo.size = len(dashyconf)
+    file4_tarinfo = tarfile.TarInfo('script.sh')
+    file4_tarinfo.size = len(script)
     with tarfile.open('noogle_generated.tar.gz', 'w:gz') as tar:
         tar.addfile(file1_tarinfo, io.BytesIO(compose.encode()))
         tar.addfile(file2_tarinfo, io.BytesIO(caddyfile.encode()))
         tar.addfile(file3_tarinfo, io.BytesIO(dashyconf.encode()))
-    return "ok", 200
+        tar.addfile(file4_tarinfo, io.BytesIO(script.encode()))
+    return render_template('download.html')
+
+@app.route('/download')
+def download_file():
+    return send_file('noogle_generated.tar.gz', as_attachment=True)
 
 @app.route('/help')
 def help():

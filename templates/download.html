@@ -1,0 +1,20 @@
+<div class="app">
+    <header class="header">
+      <h1 class="header__title">Noogle Web Installer</h1>
+      <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='index.css', _external=True) }}">
+  </header>
+  <main class="form-container" style="flex-direction: column;">
+      
+          <h1>Instructions:</h1>
+
+          <p>1: Download the following file.</p>
+
+          <a class="txtcenter" href="{{ url_for('download_file') }}" download>
+              <button type="button" class="btn">Download</button>
+          </a>
+
+          <br><br><p>2: Extract the file with "$ tar xzvf noogle_generated.tar.gz"</p>
+          <p>3: Execute the script with $" chmod +x script.sh && ./script.sh"</p>
+
+  </main>
+</div>
