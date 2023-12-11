@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PluginConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <SamlConfigs />
+    <OidConfigs>
+        <item>
+            <key>
+                <string>{{ oid_key }}</string>
+            </key>
+            <value>
+                <PluginConfiguration>
+                    <OidEndpoint>{{ oid_endpoint }}</OidEndpoint>
+                    <OidClientId>{{ oid_client_id }}</OidClientId>
+                    <OidSecret>{{ oid_secret }}</OidSecret>
+                    <Enabled>true</Enabled>
+                    <EnableAuthorization>false</EnableAuthorization>
+                    <EnableAllFolders>true</EnableAllFolders>
+                    <EnabledFolders />
+                    <AdminRoles />
+                    <Roles />
+                    <EnableFolderRoles>false</EnableFolderRoles>
+                    <EnableLiveTvRoles>false</EnableLiveTvRoles>
+                    <EnableLiveTv>false</EnableLiveTv>
+                    <EnableLiveTvManagement>false</EnableLiveTvManagement>
+                    <LiveTvRoles />
+                    <LiveTvManagementRoles />
+                    <FolderRoleMappings />
+                    <OidScopes />
+                    <CanonicalLinks />
+                    <DisableHttps>false</DisableHttps>
+                    <DoNotValidateEndpoints>false</DoNotValidateEndpoints>
+                    <DoNotValidateIssuerName>false</DoNotValidateIssuerName>
+                </PluginConfiguration>
+            </value>
+        </item>
+    </OidConfigs>
+</PluginConfiguration>
